@@ -1,0 +1,109 @@
+--- ELABORAZIONE DELLE INFORMAZIONI
+In questo corso, siamo interessati a sistemi di natura elettronica per elaborare le informazioni- In particolare, per le ragioni evidenziate a Reti Logiche T,
+siamo interessati a sistemi digitali (cioè segnali discreti). 
+
+Problema: la rete logica che elabora le informazioni è spesso molto efficiente/veloce/etc ma allo stesso tempo poco flessibile per quanto riguarda il protocollo
+utilizzabile per fornire le informazioni (digitali) in input e interpretare le informazioni (digitali) elaborate in output.
+    -> Se si desidera interagire con un sistema di elaborazione digitale e necessario adeguarsi al protocollo che la rete logica utilizza.
+Questo protocollo è codificato dall’evoluzione temporale di alcuni segnali emessi o ricevibili dalle reti logiche coinvolte.
+L’evoluzione temporale di questi segnali si definisce ciclo di bus (bus cycle).
+    -> Quindi, l’unico modo per interagire con un sistema digitale per l’elaborazione delle informazioni consiste nell’adottare questa convenzione. 
+       (ie, i cicli di bus, descritti in dettaglio sui datasheet che il produttore del sistema rende sempre disponibili)
+
+QUALE ARCHITETTURA DI ELABORAZIONE USARE e MODELLO DI VON NEUMANN?
+Una architettura general purpose, basata sul modello di Von Neumann, è molto più flessibile delle altre e può essere utilizzata, anche se non sempre
+con risultati ottimali, in ogni contesto. 
+Questo modello è l’oggetto di questo corso e utilizza come elemento di base una CPU (microprocessore).
+
+Il modello di riferimento è quindi quello di Von Neumann. Architettura del tutto generale che porta a realizzazioni poco dipendenti dal funzionamento desiderato
+    - Il funzionamento desiderato è espresso in termini di:
+        - sequenza di istruzioni (programma)
+        - memorizzate su un supporto di memoria
+    - Per cambiare funzionamento è sufficiente cambiare il programma
+    - L’architettura è adatta a trattare problemi molto più complessi di quelli visti nel corso di reti logiche ma con efficienza (tipicamente) inferiore
+    - L'importanza e la diffusione dei calcolatori dipende fortemente dalla flessibilità di questo modello
+Rispetto a Reti Logiche, la novità è il software (programma) che consente di variare il funzionamento della rete in base alle esigenze desiderate.
+(ie, il codice scritto dal programmatore).
+
+--- MODELLO DI ESECUZIONE DEL PROGRAMMA
+Il programma risiede in memoria ed è costituito da istruzioni codificate in forma binaria (linguaggio macchina). In memoria risiedono anche
+gli operandi delle istruzioni, cioè i dati elaborati e da elaborare (forma binaria).
+Le istruzioni vengono eseguite in sequenza dalla CPU in sequenza (La CPU è una macchina sequenziale sincrona, cioè con un clock).
+
+A livello di massima astrazione, il funzionamento dell’intero sistema può essere descritto mediante due soli stati:
+    – Stato in cui la CPU legge in memoria la prossima istruzione da eseguire (INSTRUCTION FETCH o IF)
+    – Stato in cui la CPU esegue l ’ istruzione letta in IF (EXECUTE o EX)
+
+Quali istruzioni possono essere eseguite da una CPU? Principalmente:
+    • Somme
+    • Moltiplicazioni
+    • Divisioni
+    • Confronto
+    • Letture dalla memoria o da altri dispositivi*
+    • Scritture in memoria o verso altri dispositivi*
+
+NB: ricorda che le istruzioni sono codificate in forma binaria! Poco comprensibile :(
+    istruzione #1 -> 00010100000101111101010000010011
+    istruzione #2 -> 10110101100100011001010000011001
+    . . . . . .
+    istruzione #N -> 01010110100101010101010110011110
+
+--- TIPOLOGIE DI CPU
+Ne esistono sostanzialmente due:
+    • RISC (Reduced Instruction Set Computer)
+        Poche e semplici istruzioni, reti logiche semplici e molto veloci (frequenza di clock elevata).
+        (eg, ARM)
+    • CISC (Complex Instruction Set Computer)
+        Molte istruzioni, alcune molto complesse, reti logiche complicate.
+        (eg, Intel e AMD)
+
+RISC VS CISC
+    • Tipicamente a una sola istruzione CISC corrispondono più istruzioni RISC, tuttavia, ogni singola istruzione RISC è eseguita spesso più rapidamente di una istruzione CISC
+        - Spesso, il codice RISC, anche se più denso, è più veloce
+    • Le RL RISC sono tipicamente più semplici di quelle CISC
+        - Se le reti sono più semplici lo spazio (silicio) può essere utilizzato per altre finalità (registri, cache, etc)
+    • I processori RISC sono molto diffusi (smartphone, tablet, e ora anche in alcuni computer standard (eg, Apple))
+    • Anche i processori CISC sono molto diffusi (PC) per via del software esistente (legacy)
+    • Le CPU CISC moderne sono in realtà internamente dei RISC
+
+ISTRUZIONI IN FORMA COMPRENSIBILE
+Indipendentemente dal tipo di CPU, le istruzioni in forma binaria non sono facilmente interpretabili e per questo non utilizzate in questa forma quando si scrive il codice.
+-> Il linguaggio che si utilizza è l’assembly o assembler!
+    -> esempio:
+        ADD R1,R2,R3; pone in R1 la somma tra registri R2 e R3
+        Questa istruzione potrebbe essere codificata con: 00010100000101111101010000010011
+
+Il traduttore assembler trasforma l'assembly in codice macchina binario.
+è una Look Up Table (LUT), ovvero una tabella
+
+--- COME SI ACCEDE ALLA MEMORIA (E NON SOLO)?
+Sappiamo che il codice nel modello di Von Neumann risiede in memoria
+    -> Come si legge e scrive dalla memoria?
+    -> Come si leggono e scrivono i dati?
+L’unico modo è attraverso dei segnali predefiniti con un ben definito andamento temporale -> ciclo di bus!
+
+In generale per accedere alla memoria o ad una qualsiasi periferica, la cpu utilizza i seguenti BUS:
+    - bus di indirizzo: INDIRIZZO[K...0];           K+1 bit con cui la cpu specifica l'indirizzo di memoria su cui vuole operare. (comunicazione solo verso la periferica)
+    - bus di dati:      BD[R...0];                  R+1 bit con cui i dati vengono letti/scritti dalle/sulle periferiche. (comunicazione bidirezionale CPU<->periferica)
+    - bus di controllo: {READ, WRITE, READY, INT};  Un numero che varia di bit che definiscono azioni appunto di controllo.
+                                                    READ e WRITE specificano una azione lettura o scrittura(solo verso la periferica),
+                                                    READY avvisa la CPU che la periferica non sta più elaborando l'input ed è pronta alla prossima azione, per esempio
+                                                    durante una lettura, si attiva quando i bit sul bus dati sono significativi e possono essere letti; durante una scrittura
+                                                    si attiva quando i bit in input sono stati scritti con successo. (solo verso CPU)
+                                                    //per più chiarezza e immagini utili guardare da slide 29
+                                                    INT è l'interrupt, verrà trattato in seguito
+
+ESEMPIO DI ESECUZIONE DI UNA ISTRUZIONE
+Consideriamo una istruzione per leggere dalla memoria un byte a un determinato indirizzo
+    -> xxx LB destinazione, indirizzo ; lettura di un byte
+
+    - Per prima cosa è eseguito il fetch dell’istruzione all’indirizzo xxx. come? Con un ciclo di bus, naturalmente
+        -> Come facciamo a conoscere l’indirizzo xxx? -> La CPU ha accesso al program counter PC
+    - Una volta letta e decodificata, l’istruzione è eseguita.
+        -> Durante l’esecuzione è eseguito un ciclo di bus di lettura
+        -> Durante il ciclo di bus è emesso l’indirizzo sui INDIRIZZO[K...0]
+
+nel prossimo capitolo -> RANGE DI INDIRIZZI
+    • Se sono disponibili 32 bit (BA[31..0]) è possibile avere accesso a 2^32 elementi 
+    -> A ogni indirizzo è associato un dispositivo (memorie, periferiche)
+    -> E’ necessario decodificare l’indirizzo emesso dalla CPU per determinare con quale dispositivo la CPU intende comunicare
