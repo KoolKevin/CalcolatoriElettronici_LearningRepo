@@ -1,0 +1,29 @@
+Una CPU emette un certo numero di indirizzi e altri segnali sui bus di sistema per poter comunicare con altri moduli.
+Il numero di diversi indirizzi emessi dalla CPU costituisce lo SPAZIO DI INDIRIZZAMENTO.
+    • Una CPU che emette un indirizzo a 20 bit ha uno spazio di indirizzamento di 1 MB (2^20 differenti indirizzi)
+    • Una CPU che emette un indirizzo a 32 bit ha uno spazio di indirizzamento di 4 GB (2^32 differenti indirizzi)
+    • Le prime CPU avevano spazi di indirizzamento molto ridotto, di alcuni KB (e.g., 64 KB o meno)
+    • Oggi è consuetudine avere almeno 32 bit di indirizzo
+
+CONDIZIONE DI VISIBILITÀ DI UN DISPOSITIVO DA PARTE DEL SOFTWARE
+Condizione necessaria affinché un dispositivo fisico (memoria, interfaccia, o altra entità) sia accessibile al software è:
+    – il dispositivo deve essere mappato in uno spazio di indirizzamento
+Mappare in uno spazio di indirizzamento significa:
+    – associare al dispositivo una finestra di indirizzi di quello spazio di indirizzamento
+La CPU comunica con i dispositivi mappati nello spazio di indirizzamento unicamente attraverso dei cicli di bus
+NB: A ciascun indirizzo è associato un byte di informazione (convenzione)
+
+CODIFICA DI PRIMO E SECONDO LIVELLO
+se all'interno di uno spazio di indirizzamento vengono mappati più memorie/dispositivi, bisogna fare:
+    • Decodifica di primo livello: utilizzo i bit più significativi dell'indirizzo per selezionare il dispositivo con cui voglio interfacciarmi (segnale di ChipSelect)
+    • Decodifica di secondo livello: utilizzo i rimanenti bit per individuare l’elemento all’interno della memoria/dispositivo selezionato
+
+COME È FATTO UN GENERICO DISPOSITIVO?
+Un qualsiasi dispositivo (memoria, periferica, etc), comunica con la CPU mediante una interfaccia standard!
+    - CS            -> definisce se il dispositivo è stato selezionato o meno
+    - A[K-1..0]     -> bit di indirizzo (codifica di secondo livello)
+    - RD            -> lettura
+    - WR            -> scrittura
+    - D[R-1..0]     -> dati
+
+NB: La comunicazione con l’esterno invece avviene secondo modalità che sono specifiche del dispositivo e quindi non standard

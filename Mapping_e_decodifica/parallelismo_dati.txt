@@ -1,0 +1,10 @@
+Abbiamo considerato fino a ora sistemi con un parallelismo (bus dati) a 8 bit
+    • Ogni trasferimento richiede un ciclo di bus
+    • N elementi (byte) -> N cicli di bus
+    • Sappiamo che le memorie (e non solo) sono lente (vs CPU)
+Possiamo fare meglio?
+    • Si, aumentando il parallelismo dei dati
+    • Riducendo la dimensione di ciascuna memoria
+    • Trasferendo più dati nello stesso ciclo di bus
+
+Un pò un casino da riportare nel dettaglio
