@@ -1,0 +1,41 @@
+(SEGNALI del processore DLX non riportati, sono quelli che ti puoi immaginari + i 4 bit di BE).
+
+CARATTERISTICHE DELL'ISA DLX(integer)
+    • Unico spazio di indirizzamento di 4G!
+    • 32 registri da 32 bit general purpose(GP) (R0,…,R31, con R0=0)!
+    • Istruzioni di lunghezza costante, 32 bit allineate!
+        - Campi delle istruzioni di dimensioni/posizioni fisse
+    • 3 formati di istruzione: I,R,J!
+    • Non ci sono istruzioni per gestire lo stack
+    • Per istruzioni che prevedono un indirizzo di ritorno (JAL/JALR), esso è salvato in R31
+    • Non esiste un registro di FLAG settato dalle istruzioni ALU. Le condizioni sono settate esplicitamente nei registri GP (istruzioni SET)
+    • E’ presente un’unica modalità di indirizzamento in memoria (indiretto, mediante registro + offset)
+        - es: 100(R2) sto indirizzando R2 + 100byte
+    • Le operazioni aritmetico/logiche sono eseguite solo tra registri (non tra registri e memoria)
+    • Esistono alcune istruzioni (MOVS2I e MOVI2S) per spostare dati tra registri GP e registri speciali e viceversa
+
+Oltre ai 32 registri GP, nel DLX(integer) esistono anche 4 registri speciali non accessibili direttamente dal codice:
+    • PC (Program Counter): Gestisce l'indirizzo dell'istruzione successiva.
+    • IR (Instruction Register): mantiene la codifica binaria dell'istruzione recuperata dalla memoria con il fetch
+    • IAR (Instruction Address Register): Contiene l'indirizzo dell'istruzione in fase di fetch (spesso non presente e sostituito dal PC, puoi ignorarlo).
+    • MAR (Memory Address Register): Tieni traccia dell'indirizzo di memoria per le operazioni di lettura/scrittura.
+    • MDR (Memory Data Register): Contiene i dati letti o da scrivere in memoria.
+
+//SKIP LISTA ISTRUZIONI E FORMATO DELLE ISTRUZIONI
+
+MODALITÀ DI ACCESSO ALLA MEMORIA
+Ogni ISA dispone di istruzioni per accedere alla memoriain lettura e scrittura.
+Normalmente è possibile stabilire la dimensione del dato che può essere trasferito (BYTE, HALF-WORD, WORD, etc)
+I due principali metodi di accesso alla memoria (indirizzamento) sono:
+    • Indirizzamento diretto (indirizzo cablato nell’istruzione)
+      Con questa modalità l’istruzione contiene al suo interno un valore (cablato) che specifica l’indirizzo di accesso alla memoria
+        -> esempio: LB R7,0800h -> “Leggi un BYTE all’indirizzo 0800h e memorizzala nel registro R7” -> 0800h indirizzo cablato.
+    • Indirizzamento indiretto (indirizzo modificabile a run-time)
+      Con questa modalità l’indirizzo di accesso alla memoria è ottenuto sommando un valore costante presente nell’istruzione con il contenuto di un registro
+        - Indirizzo = costante + registro
+        - Il registro è cablato nell’istruzione ma il suo contenuto può cambiare a tempo di esecuzione
+        -> esempio: LB R7,0800(R3) -> “Leggi un BYTE (8 bit) all’indirizzo R3 + 0800h e memorizzala nel registro R7”
+
+NB: la differenza è notevole, attraverso l'indirizzamento indiretto si può ciclare sulla memoria
+
+Il DLX prevede un’unica modalità di indirizzamento: indiretto!

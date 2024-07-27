@@ -1,0 +1,55 @@
+DEF: INSTRUCTION SET ARCHITECTURE
+L’insieme delle istruzioni e dei registri di una CPU costituiscono l’Instruction Set Architecture (ISA).
+Mediante l’ISA è possibile accedere alle risorse interne (e.g., registri) ed esterne (e.g., memoria).
+Tipicamente le istruzioni in linguaggio macchina sono generate da un compilatore. Più raramente, come in questo corso, scritte dai programmatori.
+Purtroppo, (quasi) ogni CPU possiede un proprio ISA.
+A proposito di ISA, esistono due linee di pensiero:
+    •RISC: insieme ridotto di istruzioni semplici -> molti registri interni (DLX, ARM, RISC-V, etc)
+    •CISC: insieme ampio di istruzioni complesse -> pochi registri (Intel X86)
+
+ISTRUZIONI E RISORSE INTERNE A UNA CPU
+Le istruzioni eseguibili da una CPU, codificate in binario, sono in genere molto più semplici delle istruzioni che utilizzate nei linguaggi ad alto livello.
+Tipiche operazioni sono:
+    - somme, sottrazioni, divisioni, moltiplicazioni, etc
+    - letture e scritture in memoria e periferiche
+    - confronto tra operandi (“A>B?”)
+    - salti condizionati (“salta se”) e incondizionati (“salta”)
+
+E’ possibile, mediante le istruzioni, accedere a risorse interne della CPU come registri architetturali e talvolta a registri di stato (e.g., A era maggiore di B?).
+Le risorse che sono accessibili alle istruzioni in linguaggio macchina sono definite dai progettisti dalla CPU.
+
+NB: Tuttavia, non tutti i registri interni sono accessibili al programmatore, senza che questo rappresenti un problema (Alcuni registri sono utilizzati per gestire operazioni critiche del sistema, come
+    il controllo degli interrupt, la gestione della memoria, o il cambio di contesto tra processi. Altri per ottimizzazioni varie. In genere si nascondono i registri interni
+    per ragioni di sicurezza (si pensi anche a system call e spazio user/kernel), stabilità ed efficienza).
+
+REGISTRI DI UNA CPU
+Ogni CPU possiede un certo numero di registri accessibili al programmatore. Il numero e la dimensione dei registri dipendono dall’ISA 
+(e questo ha impatto sulla rete logica risultante)
+Ovviamente, avere molti registri general purpose (GP) è vantaggioso (meno accessi alla lenta memoria).
+Avere istruzioni che possono usare tutti, o quasi, i registri GP senza vincoli è vantaggioso.
+Lo stesso ISA può essere realizzato con reti logiche completamente differenti (e.g., Intel e AMD). Queste reti hanno in genere prestazioni diverse
+(diverso CPUTime sebbene abbiano stesso Nistruzioni)
+
+NB: Non sarebbe stato meglio avere un solo ISA? -> progetto RISC-V, standard unico e open-source per ISA delle CPU -> molto simile a ISA del DLX.
+
+CODIFICA BINARIA DELLE ISTRUZIONI
+Le istruzioni per essere eseguite dalla rete logica CPU debbono essere codificate in binario secondo un formato noto e documentato dal produttore (datasheet)
+Esistono CPU con codifica delle istruzioni a lunghezza:
+    - costante (e.g., 32 bit caso RISC DLX e molti altri)
+    - variabile da istruzione a istruzione (Intel X86)
+
+Esempio: LB R7,0800(R3)         ;    “Leggi un BYTE (8 bit) all’indirizzo R3 + 0800h e trasferisci nel registro R7”
+         (A) 3 (5) 7 0 8 0 0    ;    “Codifica binaria dell'istruzione“   
+
+NB: I bit non utilizzati (in questo caso tra parentesi) per codificare R3, R7 e 0800 rappresentano il codice operativo (op code), cioè la codifica binaria 
+    dell'operazione da eseguire.
+
+La codifica delle istruzioni in linguaggio macchina è poco intuitiva per gli esseri umani. Nel linguaggio assembler si codificano le informazioni in un modo (un po’)
+più intuitivo, come si vede nell'esempio sopra.
+Escludendo la caratteristica appena evidenziata, un altro significativo vantaggio è quello di poter definire delle label utili (spesso) nei salti
+
+    LOOP: SUB R1,R1,R3
+          . . . . . .
+          BNEZ (R1),LOOP ; salta a LOOP se R1!=0
+
+
