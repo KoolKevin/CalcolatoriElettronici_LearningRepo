@@ -1,0 +1,68 @@
+GESTIONE EVENTI CON CPU: POLLING
+In un sistema a microprocessore è di fondamentale importanza poter gestire eventi che si verificano all’esterno (ma non solo) della CPU.
+Per esempio, determinare se è stato premuto un tasto sulla tastiera, se il mouse è stato spostato, etc...
+
+Una strategia, poco efficiente, per raggiungere questo scopo consiste nel controllare periodicamente se tali eventi si sono verificati (polling). Questo può essere
+fatto interrogando di continuo la periferica che si desidera gestire.
+Ovviamente, con questa strategia, la CPU spende molti cicli macchina per la verifica (o le verifiche)
+    -> Una strategia molto più efficiente, basata su una strategia “push”, consiste nell’uso di interrupt
+
+GESTIONE EVENTI CON CPU: INTERRUPT
+Un interrupt è un evento che interrompe la CPU durante il regolare flusso di esecuzione del codice.
+L’interrupt segnala che si è verificato un evento che merita immediata* attenzione da parte della CPU. Se la CPU è abilitata* a ricevere tale segnalazione, esegue
+automaticamente una porzione di codice denominata interrupt handler al fine di gestire l’evento.
+Gli eventi possono essere relativi a fattori esterni (e.g., premuto un tasto) o interni (e.g., è stata eseguita una divisione per zero, overflow, etc)
+    • Quando dipendono da fattori interni si parla di eccezioni (exceptions)
+    • Inoltre, è possibile invocare l’handler mediante opportune istruzioni (e.g., per invocare system call)
+
+NB: In ogni processore, è presente almeno un bus in ingresso denominato INT per gestire le interruzioni. 
+    In molti casi, ma non nel DLX, è presente anche un ulteriore segnale (e.g., NMI) per gestire interruzioni che non possono essere ignorate.
+    
+L’interrupt può verificarsi in qualsiasi momento (i.e., durante l’esecuzione di qualsiasi istruzione) e non è sincronizzato con il clock.
+    -> Assumeremo sempre che, l’esecuzione dell’istruzione durante la quale si verifica l’interrupt sia sempre portata a termine prima di eseguire l’handler.
+
+GESTIONE DI INTERRUZIONI MULTIPLE
+C’è però un problema: il DLX ha un solo segnale di interrupt denominato INT.
+    -> Come facciamo a gestire, come tipicamente accade, multiple sorgenti di interrupt?
+Si convogliano (e.g., mediante un OR o altre funzioni in base alle specifiche esigenze) tutti gli interrupt verso l’unico segnale INT presente nel DLX.
+Rimane un altro problema: come determinare quale/quali interrupt sono asseriti in un determinato istante?
+    -> A tal proposito è (tipicamente) necessario poter determinare lo stato delle richieste di interrupt mediante opportune istruzioni software.
+    -> Vedremo che esistono anche delle reti, denominate PIC (ProgrammableInterruptController), che possono agevolare questo compito alla CPU.
+In un sistema nel quale è presente più di una sorgente di interruzione è fondamentale poter associare un livello di PRIORITÀ a ciascuna interruzione.
+Sarebbe auspicabile poter interrompere l’interrupt handler in esecuzione se giunge una richiesta di interruzione più prioritaria (annidamento)
+
+INTERRUPT NEL DLX
+• Assumeremo che il DLX sia sensibile al livello del segnale di interrupt INT e non al suo fronte
+• L’indirizzo di ritorno (PC+4) è salvato in IAR
+• In seguito all’arrivo di un interrupt, l’istruzione in corso è completata ed è eseguito il codice all’indirizzo 00000000h
+• Il ritorno dall’interrupt handler (PC <- IAR) avviene mediante l’istruzione RFE (Return From Exception)
+• In genere, ma non nel DLX base, gli interrupt possono essere abilitati o disabilitati mediante istruzioni
+• Nell’ISA DLX, è gestito un solo indirizzo di ritorno. Pertanto, il DLX disabilita le interruzioni mentre esegue l’handler e le riabilita automaticamente
+  ritornando dall’handler (RFE). In caso contrario, nel DLX, servirebbe uno STACK SOFTWARE in cui annidare gli indirizzi di ritorno.
+
+INTERRUPT HANDLER E CONSISTENZA DEI DATI
+Le richieste di interrupt possono verificarsi in qualsiasi momento. E’ però necessario mantenere la consistenza dei dati in modo che il codice in esecuzione non sia
+modificato dall’arrivo o meno di interrupt e di conseguenza dall’esecuzione o meno degli interrupt handler.
+Per questa ragione è necessario fare in modo che l’interrupt handler (i.e., il DRIVER DEL DISPOSITIVO) non interferisca con il codice del programma (main) in esecuzione.
+Come fare?
+    -> Salvando, e ripristinando una volta terminata l'esecuzioone, il valore iniziale dei registri modificati dall’interrupt handler
+       all’interno dello stesso codice (sempre dell'handler).
+
+esempio semplice con unica sorgente di interruzione:
+    00000000h       ;Istruzioni che salvano i registri modificati dalle istruzioni seguenti
+
+    ...             ;codice di risposta alla richiesta di interruzione che modifica i registri salvati
+
+    ...             ;istruzioni di ripristino dei registri modificati in precedenza
+                
+    XXXXXXXXh RFE   ;ritorno dall’interrupt (PC <- IAR)
+
+PROGRAMMABLE INTERRUPT CONTROLLER (PIC)
+È possible tramite software, interrogare ogni singola periferica per determinare qual è l’interrupt più prioritario. A tal fine sarà anche necessaria una
+opportuna infrastruttura hardware (i tri-state serviranno?)
+
+Tuttavia, è possibile velocizzare e semplificare le reti logiche di supporto a questo compito mediante l’utilizzo di un dispositivo ad hoc (PIC).
+Un PIC si occupa di gestire multiple sorgenti di interruzione e di fornire direttamente alla CPU (su richiesta) qual è il codice/indirizzo dell’interrupt
+più prioritario tra quelli asseriti in quel momento.
+Tipicamente, in un PIC è possibile disabilitare le singole sorgenti di interruzione e stabilire il livello di priorità di ciascuna in accordo a varie
+politiche (priorità fissa, variabile, etc).
