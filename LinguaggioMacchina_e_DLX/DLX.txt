@@ -17,7 +17,7 @@ CARATTERISTICHE DELL'ISA DLX(integer)
 Oltre ai 32 registri GP, nel DLX(integer) esistono anche 4 registri speciali non accessibili direttamente dal codice:
     • PC (Program Counter): mantiene l'indirizzo della prossima istruzione da eseguire.
     • IR (Instruction Register): mantiene la codifica binaria dell'istruzione recuperata dalla memoria con il fetch
-    • IAR (Instruction Address Register): salva l’indirizzo di ritorno (PC+4) durante l'esecuzione dell'handler di un interrupt.
+    • IAR (Interrupt Address Register): salva l’indirizzo di ritorno (PC) durante l'esecuzione dell'handler di un interrupt.
     • MAR (Memory Address Register): Tieni traccia dell'indirizzo di memoria per le operazioni di lettura/scrittura.
     • MDR (Memory Data Register): Contiene i dati letti o da scrivere in memoria.
 

@@ -1,0 +1,23 @@
+Il CONTROLLER è una RSS: il suo funzionamento può essere specificato tramite un diagramma degli stati. Come tutte le RSS permane in un determinato stato
+per un ciclo di clock e transita (può transitare) da uno stato all'altro in corrispondenza degli istanti di sincronismo (fronti del clock).
+Ad ogni stato corrisponde quindi un ciclo di clock. Le micro-operazioni che devono essere eseguite in quel ciclo di clock sono specificate (in linguaggio RTL)
+nel diagramma degli stati che descrive il funzionamento del CONTROLLER all'interno degli stati.
+A partire dalla descrizione RTL si sintetizzano poi i segnali di controllo che devono essere inviati al DATAPATH per eseguire le operazioni elementari
+associate ad ogni stato.
+
+DIAGRAMMA DEGLI STATI DEL CONTROLLER (non riportato)
+    - INSTRUCTION FETCH
+    - INSTRUCTION DECODE
+    - ESECUZIONE, VARI TIPI DI MICROOPERAZIONI 
+
+DIAGRAMMA STATI LB (guarda immagine)
+attenzione all'immediato che è contenuto nei primi 16 bit dell'instruction register 
+
+PASSI DELL'ESECUZIONE DELLE ISTRUZIONI
+Nel DLX l'esecuzione di tutte le istruzioni può essere scomposta in 5 passi, ciascuno eseguito in uno o più cicli di clock.
+Tali passi sono detti:
+1) FETCH: l'istruzione viene prelevata dalla memoria e posta in IR.
+2) DECODE: l'istruzione in IR viene decodificata e vengono prelevati gli operandi sorgente dal Register File.
+3) EXECUTE: elaborazione aritmetica o logica mediante la ALU.
+4) MEMORY: accesso alla memoria e, nel caso di BRANCH aggiornamento del PC (branch completion).
+5) WRITE-BACK: scrittura sul Register File.

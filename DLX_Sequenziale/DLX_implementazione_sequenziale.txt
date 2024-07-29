@@ -1,0 +1,55 @@
+---DATAPATH E UNITÀ DI CONTROLLO
+La struttura di una CPU, come tutte le reti logiche sincrone che elaborano dati, può essere strutturata in due blocchi:
+    - Unità di Controllo
+    - Datapath.
+La CPU, per funzionare, ha bisogno della memoria esterna su cui risiedono il PROGRAMMA e i DATI.
+
+DATAPATH: Contiene tutte le unità di elaborazione ed i registri necessari per l'esecuzione delle istruzioni della CPU.
+          Ogni istruzione appartenente all'ISA è eseguita mediante una successione di operazioni elementari, dette micro-operazioni
+
+MICRO-OPERAZIONI: operazione eseguita all’interno del DATAPATH in un ciclo di clock (esempi: trasferimento di un dato da un registro ad un altro registro, elaborazione ALU)
+
+UNITÀ DI CONTROLLO: è una RSS che in ogni ciclo di clock invia un ben preciso insieme di segnali di controllo al DATAPATH al fine di specificare l'esecuzione
+                    di una determinata micro-operazione
+
+Riassumendo: l'unità di controllo definisce quale micro-operazione va eseguita e il datapath la esegue.
+
+---I REGISTRI DEL DLX (tutti a 32 bit)
+• Register file:                    – 32 General Purpose Registers R0….R31, con R0=0 sempre e comunque.
+• IAR: Interrupt Address Register   – Deposito dell'indirizzo di ritorno in caso di interruzione
+• PC: Program Counter               – Contiene l'indirizzo della prossima istruzione da eseguire
+• MAR: Memory Address Register      – Contiene l'indirizzo del dato da scrivere o leggere in memoria
+• IR: Instruction Register          – Contiene la codifica binaria dell'istruzione attualmente in esecuzione
+• TEMP: Temporary Register          – Registro di deposito temporaneo di risultati
+• MDR: Memory Data Register         – Registro di transito temporaneo dei dati da e per la memoria (Contiene i dati letti o da scrivere in memoria).
+• A e B:                            – Registri di uscita dal Register File
+
+NB: A parte il Register File questi registri NON sono accessibili al programmatore. In alcuni casi istruzioni speciali per accedere ad alcuni (e.g., IAR)
+
+---FUNZIONI DELLA ALU (non riportate)
+La ALU è una rete PURAMENTE combinatoria.
+Non esiste nel DLX un registro di flag.
+
+---TRASFERIMENTO DATI SUL DATAPATH
+• I bus S1 ed S2 sono multiplexati (tri-state) con parallelismo 32 bit.
+    - Multiplexing: I bus S1 e S2 possono trasportare dati da diverse sorgenti all'interno del processore, come registri o memoria.
+                    Il multiplexer decide quale sorgente collegare al bus in ogni momento.
+    
+    - Tri-State: Quando un dispositivo (come un registro o l'ALU) non sta inviando dati sul bus, si pone in stato di alta impedenza per evitare conflitti con altri dispositivi
+                 che potrebbero utilizzare lo stesso bus.
+
+    - Parallelismo 32 Bit: I dati vengono trasferiti in blocchi di 32 bit, il che significa che operazioni come lettura e scrittura di registri, o trasferimento di dati
+                           tra l'ALU e i registri, avvengono in un solo ciclo di clock per 32 bit di dati.
+• I registri campionano sul fronte positivo del clock.
+  Hanno due porte di uscita O1 e O2 per i due bus (o i registri A e B) e dispongono di tre ingressi di controllo:
+    – un ingresso di Write Enable (WE*) 
+    – uno di Output Enable per ogni porta di uscita, una per ogni bus S1 e S2 (OE1* e OE2*).
+• Al fine di valutare la massima frequenza a cui è possibile far funzionare il datapath è importante conoscere le seguenti temporizzazioni:
+    – T_c(max)  : ritardo max tra il fronte positivo del clock e l'istante in cui i segnali di controllo generati dall'unità di controllo sono validi;
+    – T_oe(max) : ritardo max tra l'arrivo del segnale OE e l'istante in cui i dati del registro sono disponibili sul bus;
+    – T_alu(max): ritardo massimo introdotto dalla ALU;
+    – T_su(min) : tempo di set-up minimo dei registri (requisito minimo per il corretto campionamento da parte dei registri).
+
+  La massima frequenza di funzionamento del data path si calcola come segue:
+    -> T_CK > T_c(max) + T_oe(max) + T_alu(max) + T_su(min)
+    -> f_CK(max) = 1/T_CK
